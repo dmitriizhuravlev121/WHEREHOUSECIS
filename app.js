@@ -15,10 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+    console.log("Инициализация камеры...");
     startCamera();
     scanQRCode();
 
-    // Остановка камеры при закрытии страницы
     window.addEventListener("beforeunload", stopCamera);
 });
 
@@ -32,6 +32,7 @@ async function startCamera() {
         cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         video.srcObject = cameraStream;
         video.play();
+        console.log("Камера запущена успешно");
     } catch (error) {
         if (error.name === "NotAllowedError") {
             showError("Доступ к камере запрещен. Проверьте настройки браузера.");
@@ -50,20 +51,21 @@ function stopCamera() {
         cameraStream = null;
         video.srcObject = null;
         isScanning = false;
+        console.log("Камера остановлена");
     }
 }
 
 function handleQRCode(data) {
     try {
+        console.log("Обработка QR-кода:", data);
         const scannedData = JSON.parse(data);
         const scannedProductID = scannedData.id;
         const scannedProductName = scannedData.name;
 
-        stopCamera(); // Останавливаем камеру после успешного сканирования
+        stopCamera();
         productName.innerText = scannedProductName;
         document.getElementById("formContainer").style.display = "block";
 
-        // Запрашиваем остаток на складе
         fetchStock(scannedProductID);
 
         addButton.onclick = () => sendRequest("add_stock", scannedProductID, scannedProductName);
@@ -77,13 +79,14 @@ function handleQRCode(data) {
     } catch (error) {
         showError("Неверный формат QR-кода.");
         console.error("Ошибка обработки QR-кода:", error);
-        startCamera(); // Перезапускаем камеру при ошибке
+        startCamera();
         scanQRCode();
     }
 }
 
 function fetchStock(productID) {
-    fetch(`https://wherehousecis.onrender.com/get_stock`, {
+    console.log("Запрос остатка для productID:", productID);
+    fetch(`https://warehouse-backend-new.onrender.com/get_stock`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ product_name: productID })
@@ -94,6 +97,7 @@ function fetchStock(productID) {
                 showError(data.error);
             } else {
                 stockValue.innerText = data.quantity || 0;
+                console.log("Остаток получен:", data.quantity);
             }
         })
         .catch(error => {
@@ -110,11 +114,11 @@ function sendRequest(action, productID, productName) {
         return;
     }
 
-    // Блокируем кнопки
     addButton.disabled = true;
     subtractButton.disabled = true;
 
-    fetch(`https://wherehousecis.onrender.com/${action}`, {
+    console.log(`Отправка запроса: ${action}, productID: ${productID}, quantity: ${quantity}`);
+    fetch(`https://warehouse-backend-new.onrender.com/${action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -128,7 +132,7 @@ function sendRequest(action, productID, productName) {
                 showError(data.error);
             } else {
                 showConfirmation(`${action === "add_stock" ? "Добавлено" : "Списано"} ${quantity} ед. товара "${productName}".`);
-                fetchStock(productID); // Обновляем остаток
+                fetchStock(productID);
             }
         })
         .catch(error => {
@@ -136,23 +140,30 @@ function sendRequest(action, productID, productName) {
             console.error("Ошибка:", error);
         })
         .finally(() => {
-            // Разблокируем кнопки
             addButton.disabled = false;
             subtractButton.disabled = false;
         });
 }
 
 function scanQRCode() {
-    if (isScanning || !cameraStream) return;
+    if (isScanning || !cameraStream) {
+        console.log("Сканирование заблокировано: isScanning =", isScanning, ", cameraStream =", !!cameraStream);
+        return;
+    }
     isScanning = true;
+    console.log("Запуск сканирования QR-кода");
 
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
 
     function processFrame() {
-        if (!isScanning || !video.srcObject) return;
+        if (!isScanning || !video.srcObject) {
+            console.log("Сканирование остановлено: isScanning =", isScanning, ", video.srcObject =", !!video.srcObject);
+            return;
+        }
 
-        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        // Проверяем, что видео готово
+        if (video.videoWidth > 0 && video.videoHeight > 0) {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -161,21 +172,29 @@ function scanQRCode() {
             const code = jsQR(imageData.data, canvas.width, canvas.height);
 
             if (code) {
+                console.log("QR-код найден:", code.data);
                 isScanning = false;
                 handleQRCode(code.data);
                 return;
+            } else {
+                console.log("QR-код не найден в текущем кадре");
             }
+        } else {
+            console.log("Видео не готово: videoWidth =", video.videoWidth, ", videoHeight =", video.videoHeight);
         }
+
         requestAnimationFrame(processFrame);
     }
 
-    processFrame();
+    console.log("Начало обработки кадров");
+    requestAnimationFrame(processFrame);
 }
 
 function showError(message) {
     const errorMessage = document.getElementById("errorMessage");
     errorMessage.innerText = message;
     setTimeout(() => (errorMessage.innerText = ""), 3000);
+    console.error("Ошибка:", message);
 }
 
 function showConfirmation(message) {
@@ -187,4 +206,5 @@ function showConfirmation(message) {
     document.getElementById("closeConfirmation").onclick = () => {
         confirmationMessage.style.display = "none";
     };
+    console.log("Подтверждение:", message);
 }
