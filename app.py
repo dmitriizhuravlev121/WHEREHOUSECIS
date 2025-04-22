@@ -93,7 +93,6 @@ def subtract_stock():
     except ValueError:
         return jsonify({"error": "Некорректное количество"}), 400
 
-    # Проверка остатка
     try:
         current_stock = get_current_stock(product_name)
         if quantity > current_stock:
