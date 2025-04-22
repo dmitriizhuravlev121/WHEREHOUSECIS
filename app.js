@@ -104,7 +104,7 @@ function handleQRCode(data) {
 
 function fetchStock(productID) {
     console.log("Запрос остатка для productID:", productID);
-    fetch(`https://warehouse-backend-new.onrender.com/get_stock`, {
+    fetch(`https://wherehousecis.onrender.com/get_stock`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ product_name: productID })
@@ -144,7 +144,7 @@ function sendRequest(action, productID, productName) {
     subtractButton.disabled = true;
 
     console.log(`Отправка запроса: ${action}, productID: ${productID}, quantity: ${quantity}`);
-    fetch(`https://warehouse-backend-new.onrender.com/${action}`, {
+    fetch(`https://wherehousecis.onrender.com/${action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
