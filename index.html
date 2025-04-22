@@ -2,52 +2,66 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Складской учет</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top: 50px;
+            margin: 0;
+            padding: 20px;
             background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
         video {
             border: 2px solid #ccc;
             margin-bottom: 20px;
             width: 100%;
-            max-width: 400px;
+            max-width: 90vw;
             height: auto;
             background-color: #000;
+            display: block;
         }
         h1 {
             color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
         }
         #formContainer {
             margin-top: 20px;
+            width: 100%;
+            max-width: 400px;
         }
         #productName {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             color: #007bff;
         }
         #stockQuantity {
-            font-size: 16px;
+            font-size: 18px;
             color: #555;
             margin-top: 10px;
         }
         .button-container {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         button {
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 12px 24px;
+            font-size: 18px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            min-width: 120px;
+            touch-action: manipulation;
         }
         #addButton {
             background-color: #28a745;
@@ -69,21 +83,23 @@
             cursor: not-allowed;
         }
         input[type="number"] {
-            padding: 5px;
-            font-size: 16px;
-            width: 100px;
+            padding: 10px;
+            font-size: 18px;
+            width: 100%;
+            max-width: 150px;
             margin-top: 10px;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 8px;
+            box-sizing: border-box;
         }
         .error-message {
             color: red;
-            font-size: 14px;
+            font-size: 16px;
             margin-top: 10px;
         }
         .success-message {
             color: green;
-            font-size: 14px;
+            font-size: 16px;
             margin-top: 10px;
         }
         #confirmationMessage {
@@ -94,14 +110,36 @@
             background-color: white;
             padding: 20px;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             z-index: 1000;
+            text-align: center;
+            max-width: 80vw;
         }
         #confirmationMessage button {
-            margin-top: 10px;
+            margin-top: 15px;
             background-color: #007bff;
             color: white;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 20px;
+            }
+            button {
+                padding: 10px 20px;
+                font-size: 16px;
+                min-width: 100px;
+            }
+            input[type="number"] {
+                font-size: 16px;
+                max-width: 120px;
+            }
+            #productName {
+                font-size: 18px;
+            }
+            #stockQuantity {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -128,7 +166,7 @@
         <button id="closeConfirmation">OK</button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+    <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
