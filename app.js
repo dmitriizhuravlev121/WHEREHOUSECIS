@@ -83,7 +83,7 @@ function handleQRCode(data) {
 }
 
 function fetchStock(productID) {
-    fetch(`https://wherehouse-backend-fplp.onrender.com/get_stock`, {
+    fetch(`https://wherehousecis.onrender.com/get_stock`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ product_name: productID })
@@ -114,7 +114,7 @@ function sendRequest(action, productID, productName) {
     addButton.disabled = true;
     subtractButton.disabled = true;
 
-    fetch(`https://wherehouse-backend-fplp.onrender.com/${action}`, {
+    fetch(`https://wherehousecis.onrender.com/${action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
