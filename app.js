@@ -16,6 +16,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+    if (typeof jsQR === "undefined") {
+        console.error("Библиотека jsQR не загружена.");
+        showError("Ошибка загрузки библиотеки QR-кода.");
+        return;
+    }
+
     console.log("Инициализация приложения...");
     startCamera();
     scanQRCode();
@@ -31,12 +37,11 @@ async function startCamera() {
     }
 
     try {
-        // Оптимизация для мобильных устройств
         cameraStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: "environment",
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+                width: { ideal: 640 },
+                height: { ideal: 480 }
             }
         });
         video.srcObject = cameraStream;
@@ -99,7 +104,7 @@ function handleQRCode(data) {
 
 function fetchStock(productID) {
     console.log("Запрос остатка для productID:", productID);
-    fetch(`https://wherehousecis.onrender.com/get_stock`, {
+    fetch(`https://warehouse-backend-new.onrender.com/get_stock`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ product_name: productID })
@@ -127,7 +132,6 @@ function sendRequest(action, productID, productName) {
         return;
     }
 
-    // Проверка остатка перед списанием
     if (action === "subtract_stock") {
         const currentStock = parseInt(stockValue.innerText);
         if (quantity > currentStock) {
@@ -140,7 +144,7 @@ function sendRequest(action, productID, productName) {
     subtractButton.disabled = true;
 
     console.log(`Отправка запроса: ${action}, productID: ${productID}, quantity: ${quantity}`);
-    fetch(`https://wherehousecis.onrender.com/${action}`, {
+    fetch(`https://warehouse-backend-new.onrender.com/${action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -207,6 +211,7 @@ function scanQRCode() {
             }
         } catch (error) {
             console.error("Ошибка обработки кадра:", error);
+            showError("Ошибка сканирования. Попробуйте снова.");
         }
 
         requestAnimationFrame(processFrame);
